@@ -1,9 +1,11 @@
 import Task from "./components/Task/Task";
 import Select from "./components/Select/Select";
+import Footer from "./components/Footer/Footer";
 import { useState, useEffect } from "react";
-import Fakes from "./fakeDatas/taskAPI";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import IconButton from "@material-ui/core/IconButton";
+import CheckIcon from "@material-ui/icons/Check";
+import CancelIcon from "@material-ui/icons/Cancel";
 import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import OutlinedInput from "@material-ui/core/OutlinedInput";
 import Modal from "@material-ui/core/Modal";
@@ -18,7 +20,17 @@ function App() {
 	const [error, setError] = useState(null);
 
 	useEffect(() => {
-		setInitialTasks(Fakes);
+		fetch("http://localhost:8080/task")
+			.then((response) => {
+				if (response.status === 200) {
+					return response.json();
+				} else {
+					setError("oops, an error occured");
+				}
+			})
+			.then((data) => {
+				setInitialTasks(data);
+			});
 	}, []);
 
 	const checkboxChange = (index) => {
@@ -40,8 +52,8 @@ function App() {
 	};
 
 	const addTask = () => {
+		if (input.length <= 0) return;
 		const inputSplit = input.split(" ");
-
 		initialTasks.push({
 			id: initialTasks.length,
 			title: inputSplit[0],
@@ -110,24 +122,38 @@ function App() {
 
 		const body = (
 			<div style={modalStyle} className={classes.paper}>
-				<h2 id="simple-modal-title">Modifier la tâche</h2>
+				<div className="modale_top">
+					<IconButton
+						onClick={handleClose}
+						style={{
+							padding: "18px 36px",
+							fontSize: "18px",
+						}}
+					>
+						<CancelIcon color="secondary" style={{ fontSize: 40 }} />
+					</IconButton>
+					<h2 id="simple-modal-title">Modifier la tâche</h2>
+				</div>
 				<OutlinedInput
 					autoFocus={true}
 					style={{ fontSize: 20, border: "1px solid white", color: "white" }}
 					placeholder="Saisir le titre et contenu"
 					onChange={(e) => editInputChange(e)}
 					value={editTask}
+					fullWidth={true}
 				/>
-				<IconButton
-					onClick={editTaskContent}
-					style={{
-						padding: "18px 36px",
-						fontSize: "18px",
-						color: "white",
-					}}
-				>
-					<AddCircleIcon style={{ fontSize: 40 }} />
-				</IconButton>
+				<div className="buttonAdd_container">
+					<IconButton
+						onClick={editTaskContent}
+						style={{
+							padding: "18px 36px",
+							fontSize: "18px",
+							color: "white",
+						}}
+					>
+						<CheckIcon color="inherit" style={{ fontSize: 40 }} />
+					</IconButton>
+				</div>
 			</div>
 		);
 
@@ -182,6 +208,7 @@ function App() {
 					: error}
 			</div>
 			{openModal ? <SimpleModal open={openModal} /> : null}
+			<Footer author="Sébastien Thiertant" year="2021" />
 		</div>
 	);
 }
