@@ -12,8 +12,11 @@ import { makeStyles } from "@material-ui/core/styles";
 function App() {
 	const [initialTasks, setInitialTasks] = useState([]);
 	const [input, setInput] = useState("");
+	const [editTask, setEditTask] = useState("");
+	const [editIndex, setEditIndex] = useState();
+	const [openModal, setOpenModal] = useState(false);
 	const [error, setError] = useState(null);
-	// const [open, setOpen] = useState(false);
+
 	useEffect(() => {
 		setInitialTasks(Fakes);
 	}, []);
@@ -25,14 +28,9 @@ function App() {
 	};
 
 	const onEditClick = (index, title, content) => {
-		// setOpen(true);
-		console.log("edit", index);
-		console.log(title, content);
-	};
-
-	const modalClosed = () => {
-		// setOpen(false);
-		console.log("modale fermée");
+		setOpenModal(true);
+		setEditIndex(index);
+		setEditTask(title + " " + content);
 	};
 
 	const onDeleteClick = (index) => {
@@ -55,7 +53,6 @@ function App() {
 	};
 
 	const deleteAllTasks = () => {
-		console.log("delete all tasks");
 		setInitialTasks([]);
 	};
 
@@ -63,13 +60,24 @@ function App() {
 		setInput(e.target.value);
 	};
 
-	function rand() {
-		return Math.round(Math.random() * 20) - 10;
-	}
+	const editInputChange = (e) => {
+		setEditTask(e.target.value);
+	};
+
+	const editTaskContent = () => {
+		let newTaskContents = initialTasks;
+		const editSplit = editTask.split(" ");
+		const newTitle = editSplit[0];
+		const newContent = editSplit.slice(1).join(" ");
+		newTaskContents[editIndex].title = newTitle;
+		newTaskContents[editIndex].content = newContent;
+		setInitialTasks([...newTaskContents]);
+		setOpenModal(false);
+	};
 
 	function getModalStyle() {
-		const top = 50 + rand();
-		const left = 50 + rand();
+		const top = 50;
+		const left = 50;
 
 		return {
 			top: `${top}%`,
@@ -82,45 +90,51 @@ function App() {
 		paper: {
 			position: "absolute",
 			width: 400,
-			backgroundColor: theme.palette.background.paper,
-			border: "2px solid #000",
-			boxShadow: theme.shadows[5],
+			color: "white",
+			fontFamily: "Roboto, sans-serif",
+			backgroundColor: "rgba(48, 43, 99, 0.6)",
+			boxShadow: theme.shadows[4],
 			padding: theme.spacing(2, 4, 3),
+			borderRadius: "12px",
 		},
 	}));
 
-	const SimpleModal = () => {
+	const SimpleModal = (openModal) => {
 		const classes = useStyles();
-		// getModalStyle is not a pure function, we roll the style only on the first render
 		const [modalStyle] = useState(getModalStyle);
-		const [open, setOpen] = useState(false);
-
-		const handleOpen = () => {
-			setOpen(true);
-		};
 
 		const handleClose = () => {
-			setOpen(false);
+			setOpenModal(false);
+			setEditTask("");
 		};
 
 		const body = (
 			<div style={modalStyle} className={classes.paper}>
-				<h2 id="simple-modal-title">Ma modale</h2>
-				<p id="simple-modal-description">Ceci est une modale</p>
+				<h2 id="simple-modal-title">Modifier la tâche</h2>
 				<OutlinedInput
+					autoFocus={true}
+					style={{ fontSize: 20, border: "1px solid white", color: "white" }}
 					placeholder="Saisir le titre et contenu"
-					// onChange={(e) => inputChange(e)}
-					// value={input}
+					onChange={(e) => editInputChange(e)}
+					value={editTask}
 				/>
+				<IconButton
+					onClick={editTaskContent}
+					style={{
+						padding: "18px 36px",
+						fontSize: "18px",
+						color: "white",
+					}}
+				>
+					<AddCircleIcon style={{ fontSize: 40 }} />
+				</IconButton>
 			</div>
 		);
+
 		return (
 			<div>
-				<button type="button" onClick={handleOpen}>
-					Open Modal
-				</button>
 				<Modal
-					open={open}
+					open={openModal}
 					onClose={handleClose}
 					aria-labelledby="simple-modal-title"
 					aria-describedby="simple-modal-description"
@@ -166,8 +180,8 @@ function App() {
 							);
 					  })
 					: error}
-				<SimpleModal />
 			</div>
+			{openModal ? <SimpleModal open={openModal} /> : null}
 		</div>
 	);
 }
