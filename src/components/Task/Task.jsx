@@ -30,7 +30,7 @@ const Task = (props) => {
 						color="secondary"
 						onClick={onDeleteClick}
 					>
-						<DeleteIcon style={{ fontSize: 30 }} />
+						<DeleteIcon style={{ fontSize: 30, color: "#ad3234" }} />
 					</IconButton>
 				</div>
 				<h1>{title}</h1>

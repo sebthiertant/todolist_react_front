@@ -5,19 +5,23 @@ import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 
 const SelectHome = (props) => {
-	const { submit } = props;
+	const { selectChange } = props;
 
-	const [value, setValue] = useState("");
+	const [selectValue, setSelectValue] = useState("all");
 
 	const handleChange = (event) => {
-		setValue(event.target.value);
+		setSelectValue(event.target.value);
 	};
 
 	return (
 		<div className="select">
-			<FormControl onChange={submit}>
+			<FormControl onChange={selectChange(selectValue)}>
 				<InputLabel htmlFor="availability">Filtrer</InputLabel>
-				<Select native value={value} onChange={(value) => handleChange(value)}>
+				<Select
+					native
+					value={selectValue}
+					onChange={(value) => handleChange(value)}
+				>
 					<option value="all">Voir tous</option>
 					<option value="todo">A faire</option>
 					<option value="done">Terminé</option>
